@@ -1,0 +1,1 @@
+pascal = [[1]] ++ [[1, 1]] ++ [[a + b | (a, b) <- zip (0:head (drop n pascal)) (head (drop n pascal) ++ [0])] | n <- [1..]]
