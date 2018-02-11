@@ -34,13 +34,11 @@ instance Monad StateMonad where
                           in sx11 st1
 
 initState :: State
-initState = \_ -> (minBound :: Int)
+initState = \v -> error ("variable " ++ ['"'] ++ v ++ ['"']  ++ " is undefined.")
 
 eval :: Exp -> StateMonad Int
 eval (Con i)      = return i
-eval (Var v)      = do  ans <- SM (\s -> (s v, s))
-                        if (ans == initState v) then error ("variable " ++ ['"'] ++ v ++ ['"']  ++ " is undefined.")
-                        else SM (\s -> (s v, s))
+eval (Var v)      = SM (\s -> (s v, s))
 eval (Add e1 e2)  = do  i1 <- eval e1
                         i2 <- eval e2
                         return (i1 + i2)
@@ -56,10 +54,8 @@ eval (Div e1 e2)  = do  i1 <- eval e1
                         else return (i1 `div` i2)
 eval (Neg e1   )  = do  i1 <- eval e1
                         return (0 - i1)
-eval (PP v) =       do  ans <- SM (\s ->  (s v, s ))
-                        if (ans == initState v) then error ("variable " ++ ['"'] ++ v ++ ['"']  ++ " is undefined.")
-                        else SM (\s ->  let i  = 1 + s v
-                                        in  (i, \v1 -> if (v == v1) then i else s v1 ))
+eval (PP v) =       do  SM (\s ->   let i  = 1 + s v
+                                    in  (i, \v1 -> if (v == v1) then i else s v1 ))
 eval (Assign v e1) = do i <- eval e1
                         SM (\s -> (i, \v1 -> if (v == v1) then i else s v1))
 
